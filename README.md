@@ -1,110 +1,39 @@
 # Palm92 RepoGuard
 
-**Offline-first, human-governed software engineering agent for the Google Gemma 4 Developer Agent Competition**
+RepoGuard is an experimental Gemma 4 coding agent. It reads an isolated Python repository, proposes file replacements, gates sensitive changes, and checks approved changes with pytest. It is a research prototype, not a production security boundary.
 
-RepoGuard is designed to turn Gemma 4 into a repository-aware coding agent that can inspect a codebase, reason about an issue, propose a patch, run tests, assess risk, and produce an auditable evidence trail with human governance.
+## Current status
 
-## Current experiment: v0.8 verification
+The `v0.9-hard-benchmarks` branch contains three authored medium tasks. Their original fixtures all fail their intended tests. The archived `medium-v001` run attempted all three, fixed zero, hit the 12-step limit each time, and lacks raw action traces. The separate `diagnostic-v002` invoice run proposed one change in four model actions and passed all three invoice tests after automatic approval. It did not exercise duplicate-read blocking. **The three-task `medium-v002` follow-up has not been run or validated.** Results from the easier v0.7/v0.8 pack are not comparable to these medium-task rates.
 
-The first real v0.7 Lite baseline is now locked as immutable evidence.
+See [evidence and limitations](artifacts/v0.9/README.md), [architecture](docs/ARCHITECTURE.md), and [submission preparation](docs/SUBMISSION_DRAFT.md).
 
-Baseline:
-- 4 tasks
-- 1 fixed
-- 25% fix rate
-- 50% test pass rate
-- 11.75 average steps
-- 193.2126 seconds average latency
+## Local setup and checks
 
-v0.8 tests one controlled architectural change: **automatic post-write verification with verified stopping**.
+Python 3.11 or newer is required. From the repository root:
 
-[Open RepoGuard v0.8 Verification Experiment in Google Colab](https://colab.research.google.com/github/faithfulord1/palm92-repoguard/blob/main/notebooks/RepoGuard_v0_8_Verification_Experiment.ipynb)
+```bash
+python -m pip install -e '.[dev]'
+python -m pytest -q
+python scripts/check_v0_9_fixtures.py
+```
 
-The v0.8 notebook will:
-1. install the current RepoGuard code,
-2. run the regression test suite,
-3. confirm the GPU,
-4. run `verification-v001` using the same four-task benchmark,
-5. generate a v0.7 versus v0.8 comparison automatically.
+The fixture checker succeeds only when each unmodified medium fixture fails its tests as expected. It does not demonstrate an agent repair. For a CPU-only demonstration, inspect the deterministic scripted model tests in `tests/test_agent.py` and run `python -m pytest -q tests/test_agent.py`.
 
-## Recommended first real run
+## Gemma 4 follow-up in Colab
 
-Because the 12B checkpoint needs more GPU memory, start with the lighter adaptive baseline:
+Open [medium-v002 follow-up](https://colab.research.google.com/github/faithfulord1/palm92-repoguard/blob/v0.9-hard-benchmarks/notebooks/RepoGuard_v0_9_Medium_v002_Followup.ipynb). Select a GPU runtime, run the cells in order, and download the evidence archive. The notebook checks CUDA before model execution. If the free GPU quota is exhausted, wait for access; do not label CPU checks as a Gemma benchmark. Use a distinct experiment ID if `medium-v002` evidence already exists.
 
-[Open RepoGuard v0.7 Lite directly in Google Colab](https://colab.research.google.com/github/faithfulord1/palm92-repoguard/blob/main/notebooks/RepoGuard_v0_7_Lite_Gemma_Baseline.ipynb)
+The benchmark permits automatic approval only for normal-risk edits in disposable copies of the authored fixtures. The agent requires manual approval for other edits, and tests must pass after an applied change before a run can be called fixed. Review model action logs before sharing them.
 
-The notebook uses:
-- Gemma 4 E4B instruction-tuned in 4-bit mode on suitable GPUs
-- Gemma 4 E2B instruction-tuned as an automatic fallback on smaller GPUs
-- isolated benchmark copies
-- raw JSONL evidence logging
+## Layout
 
-## Open the first real Gemma experiment
+- `src/repoguard/`: agent, tools, approval, risk, audit, reporting, benchmark.
+- `benchmarks/`: authored task definitions and defective fixture repositories.
+- `notebooks/`: Colab experiment notebooks.
+- `artifacts/`: preserved historical evidence; never overwrite an experiment ID.
+- `docs/`: architecture, experiment plans, and competition draft.
 
-[Open RepoGuard v0.7.1 adaptive baseline directly in Google Colab](https://colab.research.google.com/github/faithfulord1/palm92-repoguard/blob/main/notebooks/RepoGuard_v0_7_1_Adaptive_Gemma_Baseline.ipynb)
+## Limits
 
-After Colab opens:
-
-1. Choose a GPU runtime.
-2. Run the notebook cells from top to bottom.
-3. Keep the generated JSONL and summary evidence files unchanged.
-4. Use the results for the next RepoGuard experiment.
-
-## Current workflow
-
-Issue → Repository Scan → File Selection → Fix Plan → Patch Preview → Risk Review → Human Approval / Isolated Benchmark Policy → Tests → Evidence Report
-
-## Current project stage: v0.8.1
-
-RepoGuard now includes:
-
-- Gemma 4 Transformers adapter
-- bounded autonomous repository tool loop
-- repository reading and search
-- patch proposals and unified diff previews
-- human approval and rejection queue
-- isolated benchmark copies
-- low-risk benchmark auto-approval only inside isolated copies
-- experiment JSONL logging
-- automatic CSV and Markdown comparisons
-- four controlled Python benchmark tasks
-- cloud GPU preflight
-- first real Gemma baseline runner
-- Colab-ready baseline notebook
-
-## Competition hypothesis
-
-A smaller local coding model can become more reliable when it is given:
-
-1. structured repository navigation tools,
-2. explicit plan-before-edit behavior,
-3. test feedback loops,
-4. risk-aware human approval gates,
-5. an evidence ledger that records actions and tool outputs.
-
-## Experiment sequence
-
-1. baseline-v001
-2. tools-v001
-3. planning-v001
-4. verification-v001
-5. governance-v001
-6. full-repoguard-v001
-
-The same task pack should be used across experiments so architecture changes can be measured rather than guessed.
-
-## Research questions
-
-1. Does structured repository navigation improve task success compared with plain prompt-only context?
-2. Does a plan-before-edit stage reduce unnecessary file modifications?
-3. Does test-feedback iteration improve bug-fix success?
-4. Does adding a risk gate reduce unsafe or overly broad changes?
-5. What is the performance/cost trade-off across Gemma 4 variants?
-
-## Evidence
-
-Raw experiment outputs are stored under `artifacts/` during execution. Raw JSONL experiment evidence should be preserved unchanged after each measured run.
-
-## Status
-
-v0.7.1 prepared September 2026. E4B is preferred when sufficient GPU memory is available, with E2B as the lower-memory fallback.
+Three authored tasks with visible tests are too small for a general coding benchmark. Test success only verifies the available test suite. The file and approval controls are prototype controls, not isolation against hostile repository content or arbitrary test code; run only trusted fixtures in a disposable environment.

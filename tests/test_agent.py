@@ -146,3 +146,18 @@ def test_repeated_unchanged_read_is_blocked_and_agent_can_still_fix(tmp_path: Pa
         and e["details"]["observation"]["type"] == "repeated_read_blocked"
     ]
     assert repeated_observation and "content" not in repeated_observation[0]
+
+
+def test_model_cannot_claim_fixed_without_verified_change(tmp_path: Path):
+    (tmp_path / "app.py").write_text("broken = True\n")
+    model = ScriptedModelAdapter(responses=['{"action":"final","status":"fixed","summary":"done"}'])
+    result = RepoGuardAgent(str(tmp_path), model).repair("fix app")
+    assert result.status == "not_fixed"
+    assert any(e["event_type"] == "unverified_fix_claim_rejected" for e in result.audit["events"])
+
+
+def test_non_object_json_action_is_recoverable(tmp_path: Path):
+    model = ScriptedModelAdapter(responses=['[]', '{"action":"final","status":"blocked","summary":"No fix"}'])
+    result = RepoGuardAgent(str(tmp_path), model).repair("fix app")
+    assert result.status == "blocked"
+    assert any(e["event_type"] == "invalid_model_action" for e in result.audit["events"])

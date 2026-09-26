@@ -168,6 +168,10 @@ Rules:
                 self.audit.record("invalid_model_json", step=step, raw=raw)
                 continue
 
+            if not isinstance(action, dict):
+                observations.append({"type": "error", "message": "Action must be a JSON object."})
+                self.audit.record("invalid_model_action", step=step, raw=raw)
+                continue
             kind = action.get("action")
             if kind == "list":
                 observation = {"type": "list", "files": files[:300]}
@@ -272,6 +276,12 @@ Rules:
             elif kind == "final":
                 status = str(action.get("status", "not_fixed"))
                 summary = str(action.get("summary", ""))
+                if status == "fixed" and not (
+                    touched_files and last_tests is not None and last_tests.get("returncode") == 0
+                ):
+                    status = "not_fixed"
+                    summary = "Model claimed a fix without an applied change and passing verification. " + summary
+                    self.audit.record("unverified_fix_claim_rejected", step=step)
                 self.audit.record("repair_finished", status=status, summary=summary, steps=step)
                 return RepairResult(
                     issue=issue,
