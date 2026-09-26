@@ -1,6 +1,8 @@
 # RepoGuard submission draft and evidence checklist
 
-**Status, 26 September 2026:** Draft only. The official Kaggle competition page is [Gemma 4 Developer Agent](https://www.kaggle.com/competitions/gemma-4-developer-agent/overview/description). Its full rules, eligibility, deadline, evaluation and upload format were not accessible from this environment. Verify them in the signed-in Kaggle interface before tailoring or submitting this package. The separate paper track has separate requirements.
+**Status, 26 September 2026:** Draft only. The [official main-track overview](https://www.kaggle.com/competitions/gemma-4-developer-agent) specifies a `submission.zip` containing an ADK-compatible `agent.yaml` at the archive root. It supports only `gemma-4-31b-it-qat-w4a16-ct` for every agent and subagent, with optional LoRA adapters. The agent may request only harness tools and custom subagents via `agent_tool`. Patches are judged by validation tests, and the total agent budget is 12 hours. The entry and team merger deadline is 25 November 2026; final submission is 2 December 2026, 23:59 UTC unless organizers revise it. Faith must accept the competition rules by the entry deadline. Check the signed-in Rules page and dataset `HARNESS_README.md` for the exact config schema and eligibility before submission. The [optional paper track](https://www.kaggle.com/competitions/gemma-4-developer-agent-paper) has a separate 12 November 2026 deadline.
+
+**Critical compatibility gap:** The present Python agent and E4B Colab notebook are not an ADK `agent.yaml` package. The E4B benchmark cannot serve as the official 31B harness evaluation. Build and test a separate compliant submission against `HARNESS_README.md`; preserve these exploratory experiments as development evidence.
 
 ## Project description
 
@@ -27,6 +29,7 @@ Do not calculate a combined success percentage across these overlapping tasks or
 ## Before entry
 
 - Confirm current official Kaggle rules, eligibility, dates, required runtime/interface, judging criteria, and submission artifact format in the signed-in account.
+- Obtain the competition dataset's `HARNESS_README.md` and starter config; implement the supported 31B ADK agent package with only permitted tools and validate its archive and harness invocation.
 - Run medium-v002 only with available GPU, preserve its raw JSONL and summary under a new experiment folder, and review logs for secrets before publication.
 - Record task-level initial tests, model actions, proposals, approvals, applied diffs, final tests, steps, timing and failures from actual evidence.
 - Update the table and video claims only after verifying the archived files. Obtain Faith's approval before the external competition submission.
