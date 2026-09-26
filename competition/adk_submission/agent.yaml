@@ -1,0 +1,21 @@
+agent_class: LlmAgent
+name: palm92_repoguard
+model: gemma-4-31b-it-qat-w4a16-ct
+description: Evidence-driven Python repository repair agent.
+instruction: !include prompts/system.md
+tools:
+  - get_status
+  - search_similar_code
+  - get_code_neighbors
+  - get_code_subgraph
+  - run_command
+  - read_file
+  - edit_file
+  - write_file
+  - submit_patch
+generate_content_config:
+  temperature: 0.2
+  max_output_tokens: 4096
+  thinking_config:
+    include_thoughts: true
+    thinking_budget: 2048

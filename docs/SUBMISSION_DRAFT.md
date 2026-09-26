@@ -2,7 +2,11 @@
 
 **Status, 26 September 2026:** Draft only. The [official main-track overview](https://www.kaggle.com/competitions/gemma-4-developer-agent) specifies a `submission.zip` containing an ADK-compatible `agent.yaml` at the archive root. It supports only `gemma-4-31b-it-qat-w4a16-ct` for every agent and subagent, with optional LoRA adapters. The agent may request only harness tools and custom subagents via `agent_tool`. Patches are judged by validation tests, and the total agent budget is 12 hours. The entry and team merger deadline is 25 November 2026; final submission is 2 December 2026, 23:59 UTC unless organizers revise it. Faith must accept the competition rules by the entry deadline. Check the signed-in Rules page and dataset `HARNESS_README.md` for the exact config schema and eligibility before submission. The [optional paper track](https://www.kaggle.com/competitions/gemma-4-developer-agent-paper) has a separate 12 November 2026 deadline.
 
-**Critical compatibility gap:** The present Python agent and E4B Colab notebook are not an ADK `agent.yaml` package. The E4B benchmark cannot serve as the official 31B harness evaluation. Build and test a separate compliant submission against `HARNESS_README.md`; preserve these exploratory experiments as development evidence.
+**Critical validation gap:** The Python agent and E4B Colab notebook are separate from the ADK candidate. The E4B benchmark cannot serve as an official 31B harness evaluation. Test the ADK candidate against the competition harness; preserve the earlier experiments as development evidence.
+
+## ADK candidate prepared
+
+The separate `competition/adk_submission/` directory contains a minimal declarative 31B agent, its prompt and a per-task budget. Build with `python scripts/build_adk_submission.py`; the archive is generated at `submission.zip` and excluded from Git. Local checks verify the ZIP layout, model name, tool list and YAML parsing. **This is a candidate, not a scored or compiler-validated submission.** The provided harness guide describes the expected schema, but the downloadable sample and `adk-submission` validator are still needed for a full compatibility check. The configured 5-minute per-task ceiling is a budget hypothesis for roughly 120 hidden tasks under the 12-hour global limit, not a measured optimum.
 
 ## Project description
 
