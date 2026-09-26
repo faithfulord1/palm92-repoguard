@@ -16,4 +16,7 @@ def test_adk_archive_has_only_declared_files(tmp_path: Path):
         config = z.read("agent.yaml").decode()
         assert "gemma-4-31b-it-qat-w4a16-ct" in config
         assert "submit_patch" in config
-        assert "{problem_description}" in z.read("prompts/system.md").decode()
+        prompt = z.read("prompts/system.md").decode()
+        assert "{problem_description}" in prompt
+        assert "symbol name, not a natural-language description" in prompt
+        assert "reread an unchanged file only when" in prompt
