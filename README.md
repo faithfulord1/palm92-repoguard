@@ -2,6 +2,8 @@
 
 RepoGuard is an experimental Gemma 4 coding agent. It reads an isolated Python repository, proposes file replacements, gates sensitive changes, and checks approved changes with pytest. It is a research prototype, not a production security boundary.
 
+**Competition packaging gap:** The official main track requires an ADK `agent.yaml` submission with the specified Gemma 4 31B variant. This repository currently implements a separate Python/E4B exploration, not a competition-ready `submission.zip`. See [submission preparation](docs/SUBMISSION_DRAFT.md).
+
 ## Current status
 
 The `v0.9-hard-benchmarks` branch contains three authored medium tasks. Their original fixtures all fail their intended tests. The archived `medium-v001` run attempted all three, fixed zero, hit the 12-step limit each time, and lacks raw action traces. The separate `diagnostic-v002` invoice run proposed one change in four model actions and passed all three invoice tests after automatic approval. It did not exercise duplicate-read blocking. **The three-task `medium-v002` follow-up has not been run or validated.** Results from the easier v0.7/v0.8 pack are not comparable to these medium-task rates.
