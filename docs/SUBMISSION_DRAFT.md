@@ -6,7 +6,11 @@
 
 ## ADK candidate prepared
 
-The separate `competition/adk_submission/` directory contains a minimal declarative 31B agent, its prompt and a per-task budget. Build with `python scripts/build_adk_submission.py`; the archive is generated at `submission.zip` and excluded from Git. Local checks verify the ZIP layout, model name, tool list and YAML parsing. **This is a candidate, not a scored or compiler-validated submission.** The provided harness guide describes the expected schema, but the downloadable sample and `adk-submission` validator are still needed for a full compatibility check. The configured 5-minute per-task ceiling is a budget hypothesis for roughly 120 hidden tasks under the 12-hour global limit, not a measured optimum.
+The separate `competition/adk_submission/` directory contains a minimal declarative 31B agent, its prompt and a per-task budget. Build with `python scripts/build_adk_submission.py`; the archive is generated at `submission.zip` and excluded from Git. Local checks verify the ZIP layout, model name, tool list and YAML parsing. The root agent and evaluation fields were compared with the official dataset's `sample_submission/agent.yaml` and `sample_submission/eval_config.yaml` downloaded on 26 September 2026. The sample's LoRA adapter and analyzer subagent are optional and are intentionally absent. **This is a candidate, not a scored or compiler-validated submission.** The `adk-submission` validator and an official inference run remain necessary to establish runtime compatibility and performance. The configured 5-minute per-task ceiling is a budget hypothesis for roughly 120 hidden tasks under the 12-hour global limit, not a measured optimum.
+
+## Kaggle upload handoff
+
+The ZIP contains only `agent.yaml`, `eval_config.yaml`, and `prompts/system.md`, with `agent.yaml` at its root. In Faith's signed-in competition page, choose **Submit Prediction**, select this `submission.zip`, and complete the site's submission flow. Preserve the Kaggle submission ID and any validation errors or scoring output for the evidence table. Do not label the entry as successful until Kaggle reports acceptance. The browser available to the engineering session was signed out and its Kaggle login page failed with an anti-forgery token error; Faith's signed-in desktop browser is a separate session.
 
 ## Project description
 
@@ -33,7 +37,7 @@ Do not calculate a combined success percentage across these overlapping tasks or
 ## Before entry
 
 - Confirm current official Kaggle rules, eligibility, dates, required runtime/interface, judging criteria, and submission artifact format in the signed-in account.
-- Obtain the competition dataset's `HARNESS_README.md` and starter config; implement the supported 31B ADK agent package with only permitted tools and validate its archive and harness invocation.
+- Validate the prepared archive with the official `adk-submission` compiler and competition evaluation harness when available; compare the recorded score and errors with the candidate configuration.
 - Run medium-v002 only with available GPU, preserve its raw JSONL and summary under a new experiment folder, and review logs for secrets before publication.
 - Record task-level initial tests, model actions, proposals, approvals, applied diffs, final tests, steps, timing and failures from actual evidence.
 - Update the table and video claims only after verifying the archived files. Obtain Faith's approval before the external competition submission.
