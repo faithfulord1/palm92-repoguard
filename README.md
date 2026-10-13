@@ -1,110 +1,82 @@
 # Palm92 RepoGuard
 
-**Offline-first, human-governed software engineering agent for the Google Gemma 4 Developer Agent Competition**
+**Human-governed repository agent for safer software after AI writes the code.**
 
-RepoGuard is designed to turn Gemma 4 into a repository-aware coding agent that can inspect a codebase, reason about an issue, propose a patch, run tests, assess risk, and produce an auditable evidence trail with human governance.
+> **AI investigates. Humans decide. Evidence is the asset.**
 
-## Current experiment: v0.8 verification
+RepoGuard inspects a repository, reasons about a requested change, proposes a minimal patch, runs verification, assesses risk and produces an auditable evidence trail before consequential action.
 
-The first real v0.7 Lite baseline is now locked as immutable evidence.
+## GitLab Life After Code adaptation
 
-Baseline:
-- 4 tasks
-- 1 fixed
-- 25% fix rate
-- 50% test pass rate
-- 11.75 average steps
-- 193.2126 seconds average latency
+This branch adapts the existing RepoGuard project for GitLab Life After Code. RepoGuard predates the hackathon; this repository does not claim otherwise. The competition work focuses on the post-generation path from code to trustworthy production action.
 
-v0.8 tests one controlled architectural change: **automatic post-write verification with verified stopping**.
+**Governed path**
 
-[Open RepoGuard v0.8 Verification Experiment in Google Colab](https://colab.research.google.com/github/faithfulord1/palm92-repoguard/blob/main/notebooks/RepoGuard_v0_8_Verification_Experiment.ipynb)
+`REQUEST -> REPOSITORY SCAN -> PLAN -> PATCH PREVIEW -> TEST -> RISK CHECK -> HUMAN GATE -> ACTION -> EVIDENCE`
 
-The v0.8 notebook will:
-1. install the current RepoGuard code,
-2. run the regression test suite,
-3. confirm the GPU,
-4. run `verification-v001` using the same four-task benchmark,
-5. generate a v0.7 versus v0.8 comparison automatically.
+Core rule: **Access does not equal authority.**
 
-## Recommended first real run
+The adaptation adds:
+- `AGENTS.md` project instructions for governed agent behaviour;
+- GitLab CI tests plus durable evidence artifacts;
+- explicit safe/bounded and risky/escalation demo scenarios;
+- an MIT licence;
+- a GitLab migration and evidence plan in `docs/LIFE-AFTER-CODE.md`.
 
-Because the 12B checkpoint needs more GPU memory, start with the lighter adaptive baseline:
+## Why it matters
 
-[Open RepoGuard v0.7 Lite directly in Google Colab](https://colab.research.google.com/github/faithfulord1/palm92-repoguard/blob/main/notebooks/RepoGuard_v0_7_Lite_Gemma_Baseline.ipynb)
+Generating code is only part of software delivery. A production workflow also needs to answer:
+- Was the repository understood before editing?
+- Is the proposed change within scope?
+- Did verification actually run?
+- What risk did the change introduce?
+- Who had authority to approve it?
+- Can a reviewer reconstruct what happened later?
 
-The notebook uses:
-- Gemma 4 E4B instruction-tuned in 4-bit mode on suitable GPUs
-- Gemma 4 E2B instruction-tuned as an automatic fallback on smaller GPUs
-- isolated benchmark copies
-- raw JSONL evidence logging
+RepoGuard treats those questions as part of the engineering workflow rather than an afterthought.
 
-## Open the first real Gemma experiment
+## Existing RepoGuard capabilities
 
-[Open RepoGuard v0.7.1 adaptive baseline directly in Google Colab](https://colab.research.google.com/github/faithfulord1/palm92-repoguard/blob/main/notebooks/RepoGuard_v0_7_1_Adaptive_Gemma_Baseline.ipynb)
-
-After Colab opens:
-
-1. Choose a GPU runtime.
-2. Run the notebook cells from top to bottom.
-3. Keep the generated JSONL and summary evidence files unchanged.
-4. Use the results for the next RepoGuard experiment.
-
-## Current workflow
-
-Issue → Repository Scan → File Selection → Fix Plan → Patch Preview → Risk Review → Human Approval / Isolated Benchmark Policy → Tests → Evidence Report
-
-## Current project stage: v0.8.1
-
-RepoGuard now includes:
-
-- Gemma 4 Transformers adapter
-- bounded autonomous repository tool loop
 - repository reading and search
+- structured plan-before-edit behaviour
 - patch proposals and unified diff previews
-- human approval and rejection queue
+- bounded repository tool loop
+- test-feedback verification
+- risk-aware human approval and rejection queue
 - isolated benchmark copies
-- low-risk benchmark auto-approval only inside isolated copies
-- experiment JSONL logging
-- automatic CSV and Markdown comparisons
-- four controlled Python benchmark tasks
-- cloud GPU preflight
-- first real Gemma baseline runner
-- Colab-ready baseline notebook
+- evidence logging and experiment comparisons
+- controlled Python benchmark tasks
+- Gemma 4 adapter and experiment notebooks
 
-## Competition hypothesis
+## Run locally
 
-A smaller local coding model can become more reliable when it is given:
+```bash
+python -m pip install -e '.[dev]'
+pytest -q
+```
 
-1. structured repository navigation tools,
-2. explicit plan-before-edit behavior,
-3. test feedback loops,
-4. risk-aware human approval gates,
-5. an evidence ledger that records actions and tool outputs.
+## GitLab CI
 
-## Experiment sequence
+`.gitlab-ci.yml` runs the Python test suite and publishes JUnit plus a small evidence manifest containing the commit, pipeline and repository scope. A failed test remains visible; controls must not be removed merely to obtain a green pipeline.
 
-1. baseline-v001
-2. tools-v001
-3. planning-v001
-4. verification-v001
-5. governance-v001
-6. full-repoguard-v001
+## GitLab Duo Agent Platform
 
-The same task pack should be used across experiments so architecture changes can be measured rather than guessed.
+`AGENTS.md` supplies project-level governance instructions: inspect before editing, minimize diffs, test changes, preserve evidence, classify risk, and require human approval for consequential actions.
 
-## Research questions
+Real Duo execution evidence will only be claimed after the hackathon-provisioned GitLab project is available and the workflow has actually run there.
 
-1. Does structured repository navigation improve task success compared with plain prompt-only context?
-2. Does a plan-before-edit stage reduce unnecessary file modifications?
-3. Does test-feedback iteration improve bug-fix success?
-4. Does adding a risk gate reduce unsafe or overly broad changes?
-5. What is the performance/cost trade-off across Gemma 4 variants?
+See `docs/LIFE-AFTER-CODE.md` for the migration, demo and evidence plan.
 
-## Evidence
+## Earlier research history
 
-Raw experiment outputs are stored under `artifacts/` during execution. Raw JSONL experiment evidence should be preserved unchanged after each measured run.
+RepoGuard was previously developed for a Google Gemma 4 developer-agent experiment. That work remains useful evidence rather than being rewritten as if it were created for this hackathon.
+
+The v0.7 Lite baseline recorded four controlled tasks, one fixed task, a 25% fix rate and 50% test pass rate. v0.8 tests automatic post-write verification with verified stopping. Experimental outputs belong under `artifacts/` and should be preserved unchanged when used as evidence.
+
+## Licence
+
+MIT. See `LICENSE`.
 
 ## Status
 
-v0.7.1 prepared September 2026. E4B is preferred when sufficient GPU memory is available, with E2B as the lower-memory fallback.
+**Life After Code:** IN PROGRESS. GitLab-ready branch created; CI, governance instructions, licence and migration plan added. Waiting for the hackathon-provisioned GitLab project before claiming GitLab Duo execution or final submission.
