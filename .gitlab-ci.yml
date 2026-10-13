@@ -1,0 +1,37 @@
+stages:
+  - test
+  - evidence
+
+variables:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+
+unit_tests:
+  stage: test
+  image: python:3.11-slim
+  before_script:
+    - python -m pip install --upgrade pip
+    - python -m pip install -e '.[dev]'
+  script:
+    - pytest -q --junitxml=pytest-report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: pytest-report.xml
+    paths:
+      - pytest-report.xml
+    expire_in: 30 days
+
+evidence_manifest:
+  stage: evidence
+  image: python:3.11-slim
+  script:
+    - mkdir -p ci-evidence
+    - python --version > ci-evidence/runtime.txt
+    - printf 'commit=%s\npipeline=%s\nref=%s\n' "$CI_COMMIT_SHA" "$CI_PIPELINE_ID" "$CI_COMMIT_REF_NAME" > ci-evidence/pipeline.txt
+    - find src tests docs -type f -print | sort > ci-evidence/repository-scope.txt
+  artifacts:
+    when: always
+    paths:
+      - ci-evidence/
+    expire_in: 30 days
