@@ -1,4 +1,5 @@
 from pathlib import Path
+import pytest
 
 from repoguard.review import ApprovalQueue
 from repoguard.tools import RepoTools
@@ -28,3 +29,28 @@ def test_reject_leaves_file_unchanged(tmp_path: Path):
     queue.reject(proposal.proposal_id)
 
     assert target.read_text(encoding="utf-8") == "value = 1\n"
+
+
+def test_approval_refuses_stale_file_and_preserves_newer_edit(tmp_path: Path):
+    target = tmp_path / "app.py"
+    target.write_text("value = 1\n", encoding="utf-8")
+    queue = ApprovalQueue(RepoTools(tmp_path))
+    proposal = queue.propose("app.py", "value = 2\n")
+    target.write_text("value = 3\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="File changed since proposal"):
+        queue.approve(proposal.proposal_id)
+    assert target.read_text(encoding="utf-8") == "value = 3\n"
+    assert queue.get(proposal.proposal_id).status == "pending"
+
+
+def test_approval_refuses_new_file_at_proposed_path(tmp_path: Path):
+    queue = ApprovalQueue(RepoTools(tmp_path))
+    proposal = queue.propose("new.py", "value = 2\n")
+    target = tmp_path / "new.py"
+    target.write_text("value = 3\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="File changed since proposal"):
+        queue.approve(proposal.proposal_id)
+    assert target.read_text(encoding="utf-8") == "value = 3\n"
+
