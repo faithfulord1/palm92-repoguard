@@ -15,6 +15,7 @@ class ChangeProposal:
     path: str
     reason: str
     original_content: str
+    original_exists: bool
     proposed_content: str
     diff: str
     risk: dict[str, str]
@@ -33,10 +34,13 @@ class ApprovalQueue:
         self._next_id = 1
 
     def propose(self, path: str, proposed_content: str, reason: str = "") -> ChangeProposal:
+        target = self.tools._safe(path)
         try:
-            original = self.tools.read_file(path, max_chars=1_000_000)
+            original = target.read_text(encoding="utf-8")
+            original_exists = True
         except FileNotFoundError:
             original = ""
+            original_exists = False
 
         diff = "".join(
             difflib.unified_diff(
@@ -51,6 +55,7 @@ class ApprovalQueue:
             path=path,
             reason=reason,
             original_content=original,
+            original_exists=original_exists,
             proposed_content=proposed_content,
             diff=diff,
             risk=assess_path_risk(path),
@@ -69,6 +74,11 @@ class ApprovalQueue:
         proposal = self.get(proposal_id)
         if proposal.status != "pending":
             raise ValueError(f"Proposal {proposal_id} is already {proposal.status}")
+        target = self.tools._safe(proposal.path)
+        if target.exists() != proposal.original_exists:
+            raise ValueError("File changed since proposal; review a fresh diff")
+        if proposal.original_exists and target.read_text(encoding="utf-8") != proposal.original_content:
+            raise ValueError("File changed since proposal; review a fresh diff")
         self.tools.write_file(proposal.path, proposal.proposed_content)
         proposal.status = "approved"
         return proposal
@@ -79,3 +89,4 @@ class ApprovalQueue:
             raise ValueError(f"Proposal {proposal_id} is already {proposal.status}")
         proposal.status = "rejected"
         return proposal
+
