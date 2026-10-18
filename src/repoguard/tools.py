@@ -1,6 +1,9 @@
 from __future__ import annotations
 from pathlib import Path
+import os
 import subprocess
+import sys
+from tempfile import TemporaryDirectory
 
 
 class RepoTools:
@@ -49,14 +52,20 @@ class RepoTools:
         return hits
 
     def run_tests(self, command: list[str] | None = None, timeout: int = 120) -> dict[str, object]:
-        command = command or ["python", "-m", "pytest", "-q"]
-        completed = subprocess.run(
-            command,
-            cwd=self.root,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-        )
+        command = command or [sys.executable, "-m", "pytest", "-q"]
+        # Same-size edits within one timestamp tick can reuse stale .pyc files.
+        # Give each test subprocess a fresh cache without deleting repo files.
+        with TemporaryDirectory(prefix="repoguard-pycache-") as cache_dir:
+            env = os.environ.copy()
+            env["PYTHONPYCACHEPREFIX"] = cache_dir
+            completed = subprocess.run(
+                command,
+                cwd=self.root,
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+                env=env,
+            )
         return {
             "command": command,
             "returncode": completed.returncode,
