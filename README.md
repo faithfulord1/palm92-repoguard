@@ -71,6 +71,8 @@ RepoGuard now includes:
 - cloud GPU preflight
 - first real Gemma baseline runner
 - Colab-ready baseline notebook
+- read-only PHP/Composer inventory that tolerates non-UTF-8 Git filenames instead of losing the whole evidence run
+- dependency-minimal CI across supported Python versions
 
 ## Competition hypothesis
 

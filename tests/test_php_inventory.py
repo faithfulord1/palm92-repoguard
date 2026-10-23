@@ -1,3 +1,4 @@
+import os
 import subprocess
 from repoguard.php_inventory import inventory
 
@@ -51,3 +52,17 @@ def test_symlink_is_not_followed(tmp_path):
     (root/'link.txt').symlink_to(root/'target.txt')
     subprocess.run(['git','-C',str(root),'add','link.txt'],check=True)
     assert inventory(root)['skipped_files']==['link.txt']
+
+
+def test_non_utf8_tracked_filename_cannot_crash_inventory(tmp_path):
+    root = repo(tmp_path)
+    raw_name = b'legacy-\xff.php'
+    raw_root = os.fsencode(root)
+    with open(raw_root + b'/' + raw_name, 'wb') as handle:
+        handle.write(b'<?php echo "fixture";')
+    subprocess.run([b'git', b'-C', raw_root, b'add', raw_name], check=True)
+
+    result = inventory(root)
+
+    assert result['source_status'] == 'REVIEW_REQUIRED'
+    assert any(os.fsencode(item['path']) == raw_name for item in result['indicators'])
