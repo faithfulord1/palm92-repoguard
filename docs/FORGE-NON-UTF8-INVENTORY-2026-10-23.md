@@ -6,7 +6,7 @@ Date: 2026-10-23
 
 Git permits tracked path bytes that are not valid UTF-8. RepoGuard's PHP inventory decoded the null-delimited `git ls-files` result with strict UTF-8. A repository containing one such filename caused `UnicodeDecodeError`, preventing the scanner from returning any evidence.
 
-The regression test first reproduced that failure with a tracked `legacy-\\xff.php` fixture.
+The regression test first reproduced that failure with a tracked `legacy-\xff.php` fixture.
 
 ## Change
 
