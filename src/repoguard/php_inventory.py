@@ -1,6 +1,7 @@
 """Read-only PHP indicators in a Git checkout. Never certifies deployed systems."""
 import argparse
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -11,7 +12,10 @@ PATTERN = re.compile(r'\b(?:php(?:-fpm|-cgi)?|mod_php|frankenphp|composer)\b', r
 
 def inventory(root):
     root = Path(root).resolve()
-    paths = subprocess.check_output(['git', 'ls-files', '-z'], cwd=root).decode().split('\0')
+    # Git permits path bytes that are not valid UTF-8. os.fsdecode preserves
+    # those bytes with surrogateescape so an unusual tracked filename cannot
+    # terminate the entire evidence run.
+    paths = os.fsdecode(subprocess.check_output(['git', 'ls-files', '-z'], cwd=root)).split('\0')
     paths = [p for p in paths if p]
     indicators, skipped = [], []
     for name in sorted(paths):
