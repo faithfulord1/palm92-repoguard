@@ -54,6 +54,31 @@ def test_symlink_is_not_followed(tmp_path):
     assert inventory(root)['skipped_files']==['link.txt']
 
 
+def test_symlinked_parent_directory_is_not_followed(tmp_path):
+    root = repo(tmp_path / 'checkout')
+    add(root, 'nested/config.txt', 'ordinary fixture')
+    (root / 'nested/config.txt').unlink()
+    (root / 'nested').rmdir()
+    outside = tmp_path / 'outside'
+    outside.mkdir()
+    (outside / 'config.txt').write_text('php outside authorised checkout')
+    (root / 'nested').symlink_to(outside, target_is_directory=True)
+    result = inventory(root)
+    assert result['skipped_files'] == ['nested/config.txt']
+    assert result['indicators'] == []
+
+
+def test_internal_symlinked_parent_is_also_skipped(tmp_path):
+    root = repo(tmp_path)
+    add(root, 'nested/config.txt', 'ordinary fixture')
+    (root / 'nested/config.txt').unlink()
+    (root / 'nested').rmdir()
+    (root / 'alternate').mkdir()
+    (root / 'alternate/config.txt').write_text('php untracked fixture')
+    (root / 'nested').symlink_to(root / 'alternate', target_is_directory=True)
+    assert inventory(root)['skipped_files'] == ['nested/config.txt']
+
+
 def test_non_utf8_tracked_filename_cannot_crash_inventory(tmp_path):
     root = repo(tmp_path)
     raw_name = b'legacy-\xff.php'
