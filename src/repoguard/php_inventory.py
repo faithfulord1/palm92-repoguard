@@ -20,7 +20,11 @@ def inventory(root):
     indicators, skipped = [], []
     for name in sorted(paths):
         path = root / name
-        if path.is_symlink() or not path.is_file():
+        # A tracked file can have a replaced, symlinked parent directory.
+        # Check every lexical component before stat/read, not only the leaf.
+        components = [root.joinpath(*Path(name).parts[:i])
+                      for i in range(1, len(Path(name).parts) + 1)]
+        if any(component.is_symlink() for component in components) or not path.is_file():
             skipped.append(name)
             continue
         if path.suffix.lower() in PHP_SUFFIXES or path.name.lower() in {'composer.json', 'composer.lock'}:
